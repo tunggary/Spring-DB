@@ -48,7 +48,7 @@ public class MemberRepositoryV0 {
                 member.setMoney(rs.getInt("money"));
                 return member;
             } else {
-                throw new NoSuchElementException("member not found memberId = "+ memberId);
+                throw new NoSuchElementException("member not found memberId = " + memberId);
             }
         } catch (SQLException e) {
             throw e;
@@ -76,16 +76,34 @@ public class MemberRepositoryV0 {
         }
     }
 
+    public void delete(String memberId) throws SQLException {
+        String sql = "delete from member where member_id = ?";
+        Connection con = null;
+        PreparedStatement pstmt = null;
+
+        try {
+            con = getConnection();
+            pstmt = con.prepareStatement(sql);
+            pstmt.setString(1, memberId);
+            pstmt.executeUpdate();
+        } catch (SQLException e) {
+            log.error("db error", e);
+            throw e;
+        } finally {
+            close(con, pstmt, null);
+        }
+    }
+
     private void close(Connection con, Statement st, ResultSet rs) {
         if (con != null) {
-            try{
+            try {
                 con.close();
             } catch (SQLException e) {
                 log.error("Connection close error = {}", e);
             }
         }
         if (st != null) {
-            try{
+            try {
                 st.close();
             } catch (SQLException e) {
                 log.error("PrepareStatement close error = {}", e);
@@ -93,13 +111,14 @@ public class MemberRepositoryV0 {
         }
 
         if (rs != null) {
-            try{
+            try {
                 rs.close();
             } catch (SQLException e) {
                 log.error("ResultSet close error = {}", e);
             }
         }
     }
+
     private Connection getConnection() {
         return DBConnectionUtil.getConnection();
     }
